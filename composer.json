@@ -2,14 +2,8 @@
   "name": "liorchamla/symfony-test-helpers",
   "description": "Provides cool tools to make testing over symfony smoothie and great !",
   "type": "library",
-  "require-dev": {
-    "symfony/framework-bundle": "^5.0",
-    "fzaninotto/faker": "^1.9",
-    "doctrine/doctrine-bundle": "^2.0",
-    "symfony/security": "^4.4",
-    "symfony/browser-kit": "^5.0"
-  },
-  "minimum-stability": "dev",
+  "require-dev": {},
+  "minimum-stability": "stable",
   "license": "MIT",
   "authors": [
     {
@@ -18,7 +12,14 @@
     }
   ],
   "require": {
-    "php": "^7.2.5"
+    "php": "^7.2.5",
+    "symfony/framework-bundle": "^5.0",
+    "fzaninotto/faker": "^1.9",
+    "doctrine/doctrine-bundle": "^2.0",
+    "symfony/security-bundle": "^5.0",
+    "symfony/browser-kit": "^5.0",
+    "doctrine/orm": "^2.7",
+    "phpunit/phpunit": "^8.5"
   },
   "autoload": {
     "psr-4": {
