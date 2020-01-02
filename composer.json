@@ -17,10 +17,12 @@
       "email": "lchamla@gmail.com"
     }
   ],
-  "require": {},
-  "autoload-dev": {
+  "require": {
+    "php": "^7.2.5"
+  },
+  "autoload": {
     "psr-4": {
-      "Liior\\SymfonyTestHelpers\\": "src/"
+      "Liior\\SymfonyTestHelpers\\": "src"
     }
   }
 }
