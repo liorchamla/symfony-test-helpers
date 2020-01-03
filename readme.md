@@ -18,7 +18,7 @@ Since _it is not a bundle_, you don't need any more configuration 👍
 
 ## Basic Usage
 
-You just have to add the Prices provider to Faker as any other provider :
+Get all out of the box just by extending `Liior\SymfonyTestHelpers\WebTestCase` 💪
 
 ```php
 <?php
