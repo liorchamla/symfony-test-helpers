@@ -8,40 +8,25 @@ use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
 
 trait WithAuthenticationTrait
 {
-    use WithDatabaseTrait;
-
-    /**
-     * Authenticate as an admin user (ROLE_ADMIN)
-     *
-     * @param KernelBrowser $client
-     * @param string $firewallName
-     * @param string $username
-     *
-     * @return void
-     */
-    public function authenticateAsAdmin(KernelBrowser $client, string $firewallName = "main", string $username = "example")
+    public function authenticateAsAdmin(KernelBrowser $client, string $firewallName = 'main', string $username = 'example'): void
     {
-        $this->authenticate($client, $firewallName, ["ROLE_ADMIN"], $username);
+        $this->authenticate($client, $firewallName, ['ROLE_ADMIN'], $username);
     }
 
-    /**
-     * Authenticate as a user
-     *
-     * @param KernelBrowser $client
-     * @param string $firewallName
-     * @param array $roles
-     * @param string $username
-     *
-     * @return void
-     */
-    public function authenticate(KernelBrowser $client, string $firewallName = "main", array $roles = [], string $username = "example")
+    public function authenticate(
+        KernelBrowser $client,
+        string $firewallName = 'main',
+        array $roles = [],
+        string $username = 'example'
+    ): void
     {
-        $roles = array_merge(['ROLE_USER'], $roles);
+        $roles[] = 'ROLE_USER';
+        $roles = \array_unique($roles);
 
         $session = $client->getContainer()->get('session');
 
         $token = new UsernamePasswordToken($username, null, $firewallName, $roles);
-        $session->set('_security_' . $firewallName, serialize($token));
+        $session->set('_security_' . $firewallName, \serialize($token));
         $session->save();
 
         $cookie = new Cookie($session->getName(), $session->getId());

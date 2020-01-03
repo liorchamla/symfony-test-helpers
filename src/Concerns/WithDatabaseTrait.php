@@ -2,84 +2,48 @@
 
 namespace Liior\SymfonyTestHelpers\Concerns;
 
-use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use Doctrine\ORM\EntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
-use Liior\SymfonyTestHelpers\Exception\ClientNotCreatedException;
-use Symfony\Component\DependencyInjection\ContainerInterface;
-use Symfony\Component\Serializer\Serializer;
+use Symfony\Component\Serializer\SerializerInterface;
 
-/**
- * @property ContainerInterface $container
- */
 trait WithDatabaseTrait
 {
+    use WithContainerTrait;
 
-    /**
-     * @var ManagerRegistry
-     */
+    /** @var ManagerRegistry */
     protected $managerRegistry;
 
-    /**
-     * @var EntityManagerInterface
-     */
+    /** @var EntityManagerInterface */
     protected $manager;
 
-    /**
-     * Get the Doctrine Manager
-     *
-     * @return EntityManagerInterface
-     */
     protected function getManager(): EntityManagerInterface
     {
-        if (!static::$container) {
-            throw new ClientNotCreatedException("You can't use WithDatabaseTrait's functions without calling a first time `static::createClient()` !");
-        }
-
         if (!$this->manager) {
-            $this->manager = static::$container->get('doctrine.orm.entity_manager');
+            $this->manager = $this->getContainer()->get('doctrine.orm.entity_manager');
         }
 
         return $this->manager;
     }
 
-    /**
-     * Get the Doctrine ManagerRegistry
-     *
-     * @return ManagerRegistry
-     */
-    protected function getManagerRegistry(): ManagerRegistry
+    protected function getDoctrine(): ManagerRegistry
     {
-        if (!static::$container) {
-            throw new ClientNotCreatedException("You can't use WithDatabaseTrait's functions without calling a first time `static::createClient()` !");
-        }
-
         if (!$this->managerRegistry) {
-            $this->managerRegistry = static::$container->get('doctrine');
+            $this->managerRegistry = $this->getContainer()->get('doctrine');
         }
 
         return $this->managerRegistry;
     }
 
     /**
-     * Creates many entities and store them in database
-     *
-     * @param string $entityClassName the fully qualified entity class name
-     * @param integer $number the number of instances you want to create
-     * @param callable $fn Callable which will receive $entity instance and $index
-     *
-     * @return array entities that were created
+     * @return object[] The persisted entities.
      */
-    protected function createMany(string $entityClassName, int $number, callable $fn): array
+    protected function createMany(string $entityClass, int $numberToCreate, callable $constructor = null): array
     {
         $entities = [];
 
-        for ($i = 0; $i < $number; $i++) {
-            $entity = new $entityClassName();
-
-            $fn($entity, $i);
-
-            $this->getManager()->persist($entity);
+        for ($i = 0; $i < $numberToCreate; $i++) {
+            $entity = $this->createOne($entityClass, $constructor, $i, false);
 
             $entities[] = $entity;
         }
@@ -90,51 +54,53 @@ trait WithDatabaseTrait
     }
 
     /**
-     * Creates one entity in the database
+     * @param string|object $entity Entity class or entity instance.
+     * @param mixed $metadata Some data to send to the $constructor callback.
+     * @param callable $constructor A callable that receives $entity as argument to customize the object after creation.
      *
-     * @param string $entityClassName Entity fully qualified class name
-     * @param callable $fn Callback which will receive $entity instance to tweak it
-     *
-     * @return object The entity object
+     * @return object The persisted entity.
      */
-    protected function createOne(string $entityClassName, callable $fn)
+    protected function createOne($entity, callable $constructor = null, $metadata = null, bool $andFlush = true): object
     {
-        $entity = new $entityClassName;
+        if (\is_string($entity)) {
+            $entity = new $entity;
+        }
 
-        $fn($entity);
+        if ($constructor) {
+            $constructor($entity, $metadata);
+        }
 
         $this->getManager()->persist($entity);
-        $this->getManager()->flush();
+
+        if ($andFlush) {
+            $this->getManager()->flush();
+        }
 
         return $entity;
     }
 
-    /**
-     * Retrieve a service entity Repository
-     *
-     * @param string $class Entity fully qualified class name
-     *
-     * @return ServiceEntityRepository
-     */
-    protected function getRepository(string $class): ServiceEntityRepository
+    protected function getRepository(string $class): EntityRepository
     {
-        return $this->getManagerRegistry()->getRepository($class);
+        return $this->getDoctrine()->getRepository($class);
     }
 
     /**
-     * Lookup for all database entries for an entity and find a string in all the properties
-     *
-     * @param string $expected
-     * @param string $entityClassName
-     *
-     * @return void
+     * Lookup for all database entries for an entity and find a string in all the properties.
      */
-    protected function assertDatabaseHas(string $expected, string $entityClassName)
+    protected function assertDatabaseHas(string $expected, string $entityClassName): void
     {
         $results = $this->getRepository($entityClassName)->findAll();
 
-        /** @var Serializer */
-        $serializer = static::$container->get('serializer');
+        if (!$this->getContainer()->has('serializer')) {
+            throw new \RuntimeException(\sprintf(
+                'The "%s" service is not present in the container. You need to install the "%s" package to use it.',
+                'serializer',
+                'symfony/serializer'
+            ));
+        }
+
+        /** @var SerializerInterface */
+        $serializer = $this->getContainer()->get('serializer');
 
         $json = $serializer->serialize($results, 'json');
 
