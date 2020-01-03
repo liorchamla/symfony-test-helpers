@@ -5,7 +5,9 @@ namespace Liior\SymfonyTestHelpers\Concerns;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\Persistence\ManagerRegistry;
+use Liior\SymfonyTestHelpers\Exception\ClientNotCreatedException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\Serializer\Serializer;
 
 /**
  * @property ContainerInterface $container
@@ -30,6 +32,10 @@ trait WithDatabaseTrait
      */
     protected function getManager(): EntityManagerInterface
     {
+        if (!static::$container) {
+            throw new ClientNotCreatedException("You can't use WithDatabaseTrait's functions without calling a first time `static::createClient()` !");
+        }
+
         if (!$this->manager) {
             $this->manager = static::$container->get('doctrine.orm.entity_manager');
         }
@@ -44,6 +50,10 @@ trait WithDatabaseTrait
      */
     protected function getManagerRegistry(): ManagerRegistry
     {
+        if (!static::$container) {
+            throw new ClientNotCreatedException("You can't use WithDatabaseTrait's functions without calling a first time `static::createClient()` !");
+        }
+
         if (!$this->managerRegistry) {
             $this->managerRegistry = static::$container->get('doctrine');
         }
@@ -109,5 +119,25 @@ trait WithDatabaseTrait
     protected function getRepository(string $class): ServiceEntityRepository
     {
         return $this->getManagerRegistry()->getRepository($class);
+    }
+
+    /**
+     * Lookup for all database entries for an entity and find a string in all the properties
+     *
+     * @param string $expected
+     * @param string $entityClassName
+     *
+     * @return void
+     */
+    protected function assertDatabaseHas(string $expected, string $entityClassName)
+    {
+        $results = $this->getRepository($entityClassName)->findAll();
+
+        /** @var Serializer */
+        $serializer = static::$container->get('serializer');
+
+        $json = $serializer->serialize($results, 'json');
+
+        $this->assertStringContainsString($expected, $json);
     }
 }
