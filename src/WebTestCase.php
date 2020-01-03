@@ -11,7 +11,11 @@ use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
 
 class WebTestCase extends BaseWebTestCase
 {
-    use WithClientTrait, WithFakerTrait, WithAuthenticationTrait, WithDatabaseTrait, WithHttpMethodsTrait;
+    use WithAuthenticationTrait;
+    use WithClientTrait;
+    use WithDatabaseTrait;
+    use WithFakerTrait;
+    use WithHttpMethodsTrait;
 
     protected function setUp(): void
     {
