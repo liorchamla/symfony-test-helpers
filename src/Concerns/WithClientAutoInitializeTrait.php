@@ -2,16 +2,13 @@
 
 namespace Liior\SymfonyTestHelpers\Concerns;
 
-use Liior\SymfonyTestHelpers\Exception\ClientNotCreatedException;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
-use Symfony\Component\BrowserKit\AbstractBrowser;
+use Symfony\Bundle\FrameworkBundle\Test\KernelTestCase;
 
 trait WithClientAutoInitializeTrait
 {
     protected function setUp(): void
     {
-        if (\method_exists($this, 'initializeClient')) {
+        if ($this instanceof WithClientTrait) {
             $this->initializeClient();
         }
     }
@@ -20,6 +17,10 @@ trait WithClientAutoInitializeTrait
     {
         if (isset($this->client)) {
             $this->client = null;
+        }
+
+        if ($this instanceof KernelTestCase) {
+            static::ensureKernelShutdown();
         }
     }
 }
