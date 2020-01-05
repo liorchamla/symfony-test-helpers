@@ -4,8 +4,8 @@ namespace Liior\SymfonyTestHelpers\Concerns;
 
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
+use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
-use Symfony\Component\Serializer\SerializerInterface;
 
 trait WithDatabaseTrait
 {
@@ -86,24 +86,30 @@ trait WithDatabaseTrait
 
     /**
      * Lookup for all database entries for an entity and find a string in all the properties.
+     *
+     * @param string $expected
+     * @param string $entityClassName
+     * @param callable|null $qbCustomizer A callable which will receive the QueryBuilder to create a custom query, it will receive 2 params : the QueryBuilder instance and the rootAlias used for the query
+     *
+     * @return void
      */
-    protected function assertDatabaseHas(string $expected, string $entityClassName): void
+    protected function assertDatabaseHas(string $expected, string $entityClassName, ?callable $qbCustomizer = null): void
     {
-        $results = $this->getRepository($entityClassName)->findAll();
+        $rootAlias = 'stringThatNoOneWillEverUse';
 
-        if (!$this->getContainer()->has('serializer')) {
-            throw new \RuntimeException(\sprintf(
-                'The "%s" service is not present in the container. You need to install the "%s" package to use it.',
-                'serializer',
-                'symfony/serializer'
-            ));
+        $queryBuilder = $this->getManager()
+            ->createQueryBuilder()
+            ->select($rootAlias)
+            ->from($entityClassName, $rootAlias);
+
+        if ($qbCustomizer) {
+            $qbCustomizer($queryBuilder, $rootAlias);
         }
 
-        /** @var SerializerInterface */
-        $serializer = $this->getContainer()->get('serializer');
+        $data = $queryBuilder
+            ->getQuery()
+            ->getResult(Query::HYDRATE_ARRAY);
 
-        $json = $serializer->serialize($results, 'json');
-
-        $this->assertStringContainsString($expected, $json);
+        $this->assertStringContainsString($expected, \serialize($data));
     }
 }
