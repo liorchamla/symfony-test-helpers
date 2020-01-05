@@ -8,7 +8,7 @@ trait WithClientAutoInitializeTrait
 {
     protected function setUp(): void
     {
-        if ($this instanceof WithClientTrait) {
+        if (\method_exists($this, 'initializeClient')) {
             $this->initializeClient();
         }
     }
