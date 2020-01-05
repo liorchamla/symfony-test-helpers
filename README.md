@@ -171,7 +171,20 @@ class MyCoolTest extends WebTestCase
         });
 
         // Experimental! An assertion function which looks up data in a table
+        // With a simple string
         $this->assertDatabaseHas('A title', Task::class);
+
+        // With an array of data
+        $this->assertDatabaseHas([
+            'title' => 'A title',
+            'description' => 'A description'
+        ], Task::class);
+
+        // With a customized query
+        $this->assertDatabaseHas('James', Task::class, function(\Doctrine\ORM\QueryBuilder $qb) {
+            $qb->addSelect('a.name')
+                ->innerJoin($root. '.author', 'a');
+        });
     }
 }
 ```

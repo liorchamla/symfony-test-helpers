@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\EntityRepository;
 use Doctrine\ORM\Query;
 use Doctrine\Persistence\ManagerRegistry;
+use Exception;
 
 trait WithDatabaseTrait
 {
@@ -87,13 +88,13 @@ trait WithDatabaseTrait
     /**
      * Lookup for all database entries for an entity and find a string in all the properties.
      *
-     * @param string $expected
+     * @param string|array $expected A string or an array containing an expected row data
      * @param string $entityClassName
      * @param callable|null $qbCustomizer A callable which will receive the QueryBuilder to create a custom query, it will receive 2 params : the QueryBuilder instance and the rootAlias used for the query
      *
      * @return void
      */
-    protected function assertDatabaseHas(string $expected, string $entityClassName, ?callable $qbCustomizer = null): void
+    protected function assertDatabaseHas($expected, string $entityClassName, callable $qbCustomizer = null): void
     {
         $rootAlias = 'stringThatNoOneWillEverUse';
 
@@ -110,6 +111,38 @@ trait WithDatabaseTrait
             ->getQuery()
             ->getResult(Query::HYDRATE_ARRAY);
 
+        if (\is_array($expected)) {
+            $this->assertTrue($this->arrayContainsArray($expected, $data), 'Failed to assert that array was found in database');
+            return;
+        }
+
         $this->assertStringContainsString($expected, \serialize($data));
+    }
+
+    protected function arrayContainsArray(array $expected, array $array): bool
+    {
+        foreach ($array as $row) {
+            $rowCorresponds = true;
+
+            foreach ($expected as $key => $value) {
+
+                if (!array_key_exists($key, $row)) {
+                    // Since we have a query result, if the first row hasn't this column, no row will have
+                    throw new Exception("Expected array does not match with database results : key `$key` was not found in results");
+                }
+
+                if ($row[$key] != $value) {
+                    // No matching value for a key means this row is not what we are looking for, skip to next row
+                    $rowCorresponds = false;
+                    continue 2;
+                }
+            }
+
+            if ($rowCorresponds) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
