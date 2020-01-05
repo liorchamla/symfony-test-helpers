@@ -3,7 +3,6 @@
 namespace Liior\SymfonyTestHelpers\Concerns;
 
 use Liior\SymfonyTestHelpers\Exception\ClientNotCreatedException;
-use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\AbstractBrowser;
 
