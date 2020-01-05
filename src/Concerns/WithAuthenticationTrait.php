@@ -4,28 +4,62 @@ namespace Liior\SymfonyTestHelpers\Concerns;
 
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\BrowserKit\Cookie;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 use Symfony\Component\Security\Core\Authentication\Token\UsernamePasswordToken;
+use Symfony\Component\Security\Core\User\UserInterface;
 
 trait WithAuthenticationTrait
 {
-    public function authenticateAsAdmin(KernelBrowser $client, string $firewallName = 'main', string $username = 'example'): void
+    /**
+     * Shortcut for an admin authentication
+     *
+     * @param KernelBrowser $client
+     * @param string|UserInterface $user Can take a random string username or a valid UserInterface instance
+     * @param string $firewallName
+     *
+     * @return void
+     */
+    public function authenticateAsAdmin(KernelBrowser $client, $user, string $firewallName = 'main'): void
     {
-        $this->authenticate($client, $firewallName, ['ROLE_ADMIN'], $username);
+        $roles = ['ROLE_ADMIN'];
+
+        if ($user instanceof UserInterface) {
+            $roles = \array_unique(array_merge($user->getRoles(), $roles));
+        }
+
+        $this->authenticate($client, $user, $firewallName, $roles);
     }
 
+    /**
+     * Authenticate as a user
+     *
+     * @param KernelBrowser $client
+     * @param string|UserInterface $user A string or a valid UserInterface instance
+     * @param string $firewallName
+     * @param array $roles
+     *
+     * @return void
+     */
     public function authenticate(
         KernelBrowser $client,
+        $user,
         string $firewallName = 'main',
-        array $roles = [],
-        string $username = 'example'
-    ): void
-    {
-        $roles[] = 'ROLE_USER';
-        $roles = \array_unique($roles);
+        array $roles = []
+    ): void {
+
+        if (\is_string($user)) {
+            $roles[] = 'ROLE_USER';
+            $roles = \array_unique($roles);
+        }
+
+        if ($user instanceof UserInterface) {
+            $roles = $user->getRoles();
+        }
 
         $session = $client->getContainer()->get('session');
 
-        $token = new UsernamePasswordToken($username, null, $firewallName, $roles);
+        $token = new UsernamePasswordToken($user, null, $firewallName, $roles);
         $session->set('_security_' . $firewallName, \serialize($token));
         $session->save();
 
