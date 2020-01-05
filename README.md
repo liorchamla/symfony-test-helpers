@@ -124,7 +124,7 @@ class MyCoolTest extends WebTestCase
 
 ## WithDatabaseTrait: Interaction with database made easy
 
-With this trait, you get shortcuts methods to act as an authenticate user
+With this trait, you can retrieve Doctrine EntityManager, Repositories and assert that a string is found in a table (experimental)
 
 ```php
 <?php
