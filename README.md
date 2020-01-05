@@ -110,13 +110,56 @@ class MyCoolTest extends WebTestCase
     {
         $client = static::createClient();
 
-        $this->authenticate($client, 'my_firewall_name');
+        // Authenticate with dummy username, don't need the user to exist in the database
+        $this->authenticate($client, "fakeUserName", 'my_firewall_name');
         $client->request('GET', '/protected/route');
 
-        $this->authenticate($client, 'my_firewall_name', ['ROLE_ADMIN']);
+        // You can pass custom roles for your simulated user
+        $this->authenticate($client, "fakeUserName", 'my_firewall_name', ['ROLE_ADMIN']);
         $client->request('GET', '/admin/foo');
 
-        $this->authenticateAsAdmin($client, 'my_firewall_name');
+        // A shortcut to authenticate as an admin
+        $this->authenticateAsAdmin($client, "fakeUserName", 'my_firewall_name');
+        $client->request('GET', '/admin/foo');
+    }
+}
+```
+
+You can also authenticate with a real user !
+
+```php
+<?php
+
+use Liior\SymfonyTestHelpers\Concerns\WithAuthenticationTrait;
+use Liior\SymfonyTestHelpers\Concerns\WithDatabaseTrait;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use App\Entity\User;
+
+class MyCoolTest extends WebTestCase
+{
+    use WithAuthenticationTrait;
+    use WithDatabaseTrait;
+
+    public function testItRuns(): void
+    {
+        $client = static::createClient();
+
+        // Create a user (it must be an instance of UserInterface)
+        $user = new User;
+        $user->setEmail("any@email.com")
+            ->setPassword("password")
+            ->setRoles(['ROLE_MANAGER', 'ROLE_AUTHOR']);
+
+        // You get this from WithDatabaseTrait
+        $this->getManager()->persist($user);
+        $this->getManager()->flush();
+
+        // Then you can authenticate with this user
+        $this->authenticate($client, $user, "my_firewall_name");
+        $client->request('GET', '/protected/route');
+
+        // You can also override roles :
+        $this->authenticate($client, $user, "my_firewall_name", ['ROLE_MODERATOR', 'ROLE_ADMIN']);
         $client->request('GET', '/admin/foo');
     }
 }
