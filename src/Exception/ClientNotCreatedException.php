@@ -2,8 +2,8 @@
 
 namespace Liior\SymfonyTestHelpers\Exception;
 
-use Exception;
+use RuntimeException;
 
-final class ClientNotCreatedException extends Exception
+final class ClientNotCreatedException extends RuntimeException
 {
 }
