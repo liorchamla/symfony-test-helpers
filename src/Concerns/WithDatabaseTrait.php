@@ -20,8 +20,6 @@ trait WithDatabaseTrait
 
     /**
      * Retrieve Doctrine EntityManagerInterface
-     *
-     * @return EntityManagerInterface
      */
     protected function getManager(): EntityManagerInterface
     {
@@ -34,8 +32,6 @@ trait WithDatabaseTrait
 
     /**
      * Retrieve Doctrine
-     *
-     * @return ManagerRegistry
      */
     protected function getDoctrine(): ManagerRegistry
     {
@@ -96,9 +92,6 @@ trait WithDatabaseTrait
 
     /**
      * Get Entity Repository
-     *
-     * @param string $class
-     * @return EntityRepository
      */
     protected function getRepository(string $class): EntityRepository
     {
@@ -111,10 +104,8 @@ trait WithDatabaseTrait
      * @param string|array $expected A string or an array containing an expected row data
      * @param string $entityClassName
      * @param callable|null $qbCustomizer A callable which will receive the QueryBuilder to create a custom query, it will receive 2 params : the QueryBuilder instance and the rootAlias used for the query
-     *
-     * @return void
      */
-    protected function assertDatabaseNotHas($expected, string $entityClassName, callable $qbCustomizer = null): void
+    protected function assertDatabaseNotHas($expected, string $entityClassName, callable $qbCustomizer = null): self
     {
         $data = $this->getQueryResults($entityClassName, $qbCustomizer);
 
@@ -124,6 +115,8 @@ trait WithDatabaseTrait
         }
 
         $this->assertNotContains($expected, \serialize($data));
+
+        return $this;
     }
 
     /**
@@ -132,10 +125,8 @@ trait WithDatabaseTrait
      * @param string|array $expected A string or an array containing an expected row data
      * @param string $entityClassName
      * @param callable|null $qbCustomizer A callable which will receive the QueryBuilder to create a custom query, it will receive 2 params : the QueryBuilder instance and the rootAlias used for the query
-     *
-     * @return void
      */
-    protected function assertDatabaseHas($expected, string $entityClassName, callable $qbCustomizer = null): void
+    protected function assertDatabaseHas($expected, string $entityClassName, callable $qbCustomizer = null): self
     {
         $data = $this->getQueryResults($entityClassName, $qbCustomizer);
 
@@ -145,6 +136,8 @@ trait WithDatabaseTrait
         }
 
         $this->assertStringContainsString($expected, \serialize($data));
+
+        return $this;
     }
 
     /**
@@ -152,8 +145,6 @@ trait WithDatabaseTrait
      *
      * @param string $entityClassName The Entity which we are searching
      * @param callable $qbCustomizer A callback that will receive the query builder in order to customize it
-     *
-     * @return array
      */
     protected function getQueryResults(string $entityClassName, callable $qbCustomizer = null): array
     {
@@ -175,10 +166,6 @@ trait WithDatabaseTrait
 
     /**
      * Looks for for data (array format) in database
-     *
-     * @param array $expected
-     * @param array $array
-     * @return boolean
      */
     protected function arrayContainsArray(array $expected, array $array): bool
     {

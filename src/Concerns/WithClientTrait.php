@@ -5,6 +5,7 @@ namespace Liior\SymfonyTestHelpers\Concerns;
 use Liior\SymfonyTestHelpers\Exception\ClientNotCreatedException;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\BrowserKit\AbstractBrowser;
+use Symfony\Component\DomCrawler\Crawler;
 
 trait WithClientTrait
 {
@@ -13,9 +14,6 @@ trait WithClientTrait
 
     /**
      * Assert response contains specified string
-     *
-     * @param string $string
-     * @return self
      */
     public function assertSee(string $string): self
     {
@@ -28,9 +26,6 @@ trait WithClientTrait
 
     /**
      * Assert response does not contain specified string
-     *
-     * @param string $string
-     * @return self
      */
     public function assertNotSee(string $string): self
     {
@@ -69,7 +64,7 @@ trait WithClientTrait
      * @param array $server
      * @param string|null $content
      * @param boolean $changeHistory
-     * @return void
+     * @return Crawler
      */
     protected function get(string $url, array $parameters = [], array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true)
     {
@@ -87,7 +82,7 @@ trait WithClientTrait
      * @param array $server
      * @param string|null $content
      * @param boolean $changeHistory
-     * @return void
+     * @return Crawler
      */
     protected function post(string $url, array $parameters = [], array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true)
     {
@@ -105,7 +100,7 @@ trait WithClientTrait
      * @param array $server
      * @param string|null $content
      * @param boolean $changeHistory
-     * @return void
+     * @return Crawler
      */
     protected function delete(string $url, array $parameters = [], array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true)
     {
@@ -123,7 +118,7 @@ trait WithClientTrait
      * @param array $server
      * @param string|null $content
      * @param boolean $changeHistory
-     * @return void
+     * @return Crawler
      */
     protected function put(string $url, array $parameters = [], array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true)
     {
@@ -141,7 +136,7 @@ trait WithClientTrait
      * @param array $server
      * @param string|null $content
      * @param boolean $changeHistory
-     * @return void
+     * @return Crawler
      */
     protected function patch(string $url, array $parameters = [], array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true)
     {
