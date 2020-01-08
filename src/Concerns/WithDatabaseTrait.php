@@ -18,6 +18,11 @@ trait WithDatabaseTrait
     /** @var EntityManagerInterface */
     protected $manager;
 
+    /**
+     * Retrieve Doctrine EntityManagerInterface
+     *
+     * @return EntityManagerInterface
+     */
     protected function getManager(): EntityManagerInterface
     {
         if (!$this->manager) {
@@ -27,6 +32,11 @@ trait WithDatabaseTrait
         return $this->manager;
     }
 
+    /**
+     * Retrieve Doctrine
+     *
+     * @return ManagerRegistry
+     */
     protected function getDoctrine(): ManagerRegistry
     {
         if (!$this->managerRegistry) {
@@ -37,6 +47,8 @@ trait WithDatabaseTrait
     }
 
     /**
+     * Create serveral rows in database (returns array of entities)
+     * 
      * @return object[] The persisted entities.
      */
     protected function createMany(string $entityClass, int $numberToCreate, callable $constructor = null): array
@@ -55,6 +67,8 @@ trait WithDatabaseTrait
     }
 
     /**
+     * Create a row inside the database (returns the persisted entity)
+     * 
      * @param string|object $entity Entity class or entity instance.
      * @param mixed $metadata Some data to send to the $constructor callback.
      * @param callable $constructor A callable that receives $entity as argument to customize the object after creation.
@@ -80,6 +94,12 @@ trait WithDatabaseTrait
         return $entity;
     }
 
+    /**
+     * Get Entity Repository
+     *
+     * @param string $class
+     * @return EntityRepository
+     */
     protected function getRepository(string $class): EntityRepository
     {
         return $this->getDoctrine()->getRepository($class);
@@ -119,6 +139,13 @@ trait WithDatabaseTrait
         $this->assertStringContainsString($expected, \serialize($data));
     }
 
+    /**
+     * Looks for for data (array format) in database
+     *
+     * @param array $expected
+     * @param array $array
+     * @return boolean
+     */
     protected function arrayContainsArray(array $expected, array $array): bool
     {
         foreach ($array as $row) {

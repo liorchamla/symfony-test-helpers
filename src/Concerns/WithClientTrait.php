@@ -11,6 +11,12 @@ trait WithClientTrait
     /** @var AbstractBrowser */
     protected $client;
 
+    /**
+     * Assert response contains specified string
+     *
+     * @param string $string
+     * @return self
+     */
     public function assertSee(string $string): self
     {
         $this->ensureClientInitialized();
@@ -39,6 +45,17 @@ trait WithClientTrait
         }
     }
 
+    /**
+     * Send GET request
+     *
+     * @param string $url
+     * @param array $parameters
+     * @param array $files
+     * @param array $server
+     * @param string|null $content
+     * @param boolean $changeHistory
+     * @return void
+     */
     protected function get(string $url, array $parameters = [], array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true)
     {
         $this->ensureClientInitialized();
@@ -46,6 +63,17 @@ trait WithClientTrait
         return $this->client->request('GET', $url, $parameters, $files, $server, $content, $changeHistory);
     }
 
+    /**
+     * Send POST request
+     *
+     * @param string $url
+     * @param array $parameters
+     * @param array $files
+     * @param array $server
+     * @param string|null $content
+     * @param boolean $changeHistory
+     * @return void
+     */
     protected function post(string $url, array $parameters = [], array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true)
     {
         $this->ensureClientInitialized();
@@ -53,6 +81,17 @@ trait WithClientTrait
         return $this->client->request('POST', $url, $parameters, $files, $server, $content, $changeHistory);
     }
 
+    /**
+     * Send DELETE request
+     *
+     * @param string $url
+     * @param array $parameters
+     * @param array $files
+     * @param array $server
+     * @param string|null $content
+     * @param boolean $changeHistory
+     * @return void
+     */
     protected function delete(string $url, array $parameters = [], array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true)
     {
         $this->ensureClientInitialized();
@@ -60,6 +99,17 @@ trait WithClientTrait
         return $this->client->request('DELETE', $url, $parameters, $files, $server, $content, $changeHistory);
     }
 
+    /**
+     * Send PUT request
+     *
+     * @param string $url
+     * @param array $parameters
+     * @param array $files
+     * @param array $server
+     * @param string|null $content
+     * @param boolean $changeHistory
+     * @return void
+     */
     protected function put(string $url, array $parameters = [], array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true)
     {
         $this->ensureClientInitialized();
@@ -67,6 +117,17 @@ trait WithClientTrait
         return $this->client->request('PUT', $url, $parameters, $files, $server, $content, $changeHistory);
     }
 
+    /**
+     * Send PATCH request
+     *
+     * @param string $url
+     * @param array $parameters
+     * @param array $files
+     * @param array $server
+     * @param string|null $content
+     * @param boolean $changeHistory
+     * @return void
+     */
     protected function patch(string $url, array $parameters = [], array $files = [], array $server = [], ?string $content = null, bool $changeHistory = true)
     {
         $this->ensureClientInitialized();
