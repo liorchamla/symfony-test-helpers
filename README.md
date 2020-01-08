@@ -62,7 +62,11 @@ class MyCoolTest extends WebTestCase
     {
         $this->get('/my/route');
 
+        // Asserts that 'Hello World' is in the content of the response
         $this->assertSee('Hello World!');
+
+        // Asserts that 'foobar' is not in the content of the response
+        $this->assertNotSee('foobar')
     }
 }
 ```
@@ -228,6 +232,9 @@ class MyCoolTest extends WebTestCase
             $qb->addSelect('a.name')
                 ->innerJoin($root. '.author', 'a');
         });
+
+        // Inversed logic : asserts that database is missing 'foo' in Task entity
+        $this->assertDatabaseNotHas('foo', Task::class);
     }
 }
 ```

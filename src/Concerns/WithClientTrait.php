@@ -26,6 +26,21 @@ trait WithClientTrait
         return $this;
     }
 
+    /**
+     * Assert response does not contain specified string
+     *
+     * @param string $string
+     * @return self
+     */
+    public function assertNotSee(string $string): self
+    {
+        $this->ensureClientInitialized();
+
+        $this->assertNotContains($string, $this->client->getResponse()->getContent());
+
+        return $this;
+    }
+
     public function initializeClient(...$clientArguments): void
     {
         if (!$this instanceof WebTestCase) {

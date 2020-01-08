@@ -106,7 +106,28 @@ trait WithDatabaseTrait
     }
 
     /**
-     * Lookup for all database entries for an entity and find a string in all the properties.
+     * Lookup for all database entries for an entity and assert that it does not find a string or an array of properties.
+     *
+     * @param string|array $expected A string or an array containing an expected row data
+     * @param string $entityClassName
+     * @param callable|null $qbCustomizer A callable which will receive the QueryBuilder to create a custom query, it will receive 2 params : the QueryBuilder instance and the rootAlias used for the query
+     *
+     * @return void
+     */
+    protected function assertDatabaseNotHas($expected, string $entityClassName, callable $qbCustomizer = null): void
+    {
+        $data = $this->getQueryResults($entityClassName, $qbCustomizer);
+
+        if (\is_array($expected)) {
+            $this->assertFalse($this->arrayContainsArray($expected, $data), 'Failed to assert that array was found in database');
+            return;
+        }
+
+        $this->assertNotContains($expected, \serialize($data));
+    }
+
+    /**
+     * Lookup for all database entries for an entity and assert that it finds a string or an array of properties.
      *
      * @param string|array $expected A string or an array containing an expected row data
      * @param string $entityClassName
@@ -115,6 +136,26 @@ trait WithDatabaseTrait
      * @return void
      */
     protected function assertDatabaseHas($expected, string $entityClassName, callable $qbCustomizer = null): void
+    {
+        $data = $this->getQueryResults($entityClassName, $qbCustomizer);
+
+        if (\is_array($expected)) {
+            $this->assertTrue($this->arrayContainsArray($expected, $data), 'Failed to assert that array was found in database');
+            return;
+        }
+
+        $this->assertStringContainsString($expected, \serialize($data));
+    }
+
+    /**
+     * Create a query builder and returns data as a flat array
+     *
+     * @param string $entityClassName The Entity which we are searching
+     * @param callable $qbCustomizer A callback that will receive the query builder in order to customize it
+     *
+     * @return array
+     */
+    protected function getQueryResults(string $entityClassName, callable $qbCustomizer = null): array
     {
         $rootAlias = 'stringThatNoOneWillEverUse';
 
@@ -127,16 +168,9 @@ trait WithDatabaseTrait
             $qbCustomizer($queryBuilder, $rootAlias);
         }
 
-        $data = $queryBuilder
+        return $queryBuilder
             ->getQuery()
             ->getResult(Query::HYDRATE_ARRAY);
-
-        if (\is_array($expected)) {
-            $this->assertTrue($this->arrayContainsArray($expected, $data), 'Failed to assert that array was found in database');
-            return;
-        }
-
-        $this->assertStringContainsString($expected, \serialize($data));
     }
 
     /**
