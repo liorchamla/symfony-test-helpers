@@ -239,6 +239,45 @@ class MyCoolTest extends WebTestCase
 }
 ```
 
+## WithValidatorAssertionsTrait : Verify Validation Constraints after a request
+
+With this trait, you gain assertions methods which deal with Validation Constraints (requires WithClientTrait).
+
+```php
+<?php
+
+use Liior\SymfonyTestHelpers\Concerns\WithClientTrait;
+use Liior\SymfonyTestHelpers\Concerns\WithValidatorAssertionsTrait;
+use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+
+class MyCoolTest extends WebTestCase
+{
+    use WithClientTrait;
+    use WithValidatorAssertionsTrait;
+
+    public function testItRuns()
+    {
+        $this->initializeClient();
+
+        // Don't forget to enable profiler before your request or none of this will work !
+        $this->client->enableProfiler();
+
+        $this->post('/save', [
+            'firstName' => '', // It should create a violation
+            'lastName' => 'Dupont', // It should not
+            'age' => 2000 // It should create a violation
+        ]);
+
+        // You can do some assertions about the validator's violations list
+        $this->assertNoValidatorErrors(); // Will fail
+        $this->assertValidatorErrorsCount(2); // Will succeed
+        $this->assertValidatorHasError('firstName'); // Will succeed
+        $this->assertValidatorHasErrors(['firstName', 'age']); // Will succeed
+        $this->assertValidatorHasErrors(['firstName', 'lastName']); // Will fail (since lastName did not violate a constraint)
+    }
+}
+```
+
 ## WithFakerTrait: Using faker made easy
 
 With this trait, you gain access to faker.
