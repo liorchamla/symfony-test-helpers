@@ -8,6 +8,7 @@ use Liior\SymfonyTestHelpers\Concerns\WithDatabaseTrait;
 use Liior\SymfonyTestHelpers\Concerns\WithFakerTrait;
 use Liior\SymfonyTestHelpers\Concerns\WithClientTrait;
 use Liior\SymfonyTestHelpers\Concerns\WithContainerTrait;
+use Liior\SymfonyTestHelpers\Concerns\WithValidatorAssertionsTrait;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase as BaseWebTestCase;
 
 class WebTestCase extends BaseWebTestCase
@@ -18,4 +19,5 @@ class WebTestCase extends BaseWebTestCase
     use WithClientTrait;
     use WithDatabaseTrait;
     use WithFakerTrait;
+    use WithValidatorAssertionsTrait;
 }
